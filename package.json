@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "turbo dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "test": "turbo test"
   },
   "keywords": [],
   "author": "",
@@ -12,9 +17,12 @@
   "devEngines": {
     "packageManager": {
       "name": "pnpm",
-      "version": "^11.5.2",
+      "version": "11.20.0",
       "onFail": "download"
     }
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "turbo": "^2.10.8"
+  }
 }
