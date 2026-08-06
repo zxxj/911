@@ -1,8 +1,41 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app.module.js';
+import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(process.env.PORT ?? 3001);
+  const configService = app.get(ConfigService);
+
+  app.enableShutdownHooks();
+
+  app.enableCors({
+    origin: configService.getOrThrow<string>('WEB_ORIGIN'),
+    credentials: true,
+  });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transformOptions: { enableImplicitConversion: true },
+    }),
+  );
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('blog')
+    .setDescription('我的博客~')
+    .setVersion('1.0')
+    .addCookieAuth('session', undefined, 'session')
+    .build();
+
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('swagger', app, document);
+  const port = Number(configService.getOrThrow<string>('PORT'));
+
+  await app.listen(port);
 }
+
 bootstrap();
