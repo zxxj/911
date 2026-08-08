@@ -3,10 +3,13 @@ import { AppModule } from './app.module.js';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  app.use(cookieParser(configService.getOrThrow<string>('SESSION_SECRET')));
 
   app.enableShutdownHooks();
 
