@@ -1,15 +1,18 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import {
   ApiConflictResponse,
+  ApiCookieAuth,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -20,8 +23,9 @@ import {
 import { RegisterDto } from './dto/register.dto.js';
 import { AuthService } from './auth.service.js';
 import { LoginDto } from './dto/login.dto.js';
-import { SessionService } from './session.service.js';
+import { SessionData, SessionService } from './session.service.js';
 import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from '../guards/auth.guard.js';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -71,8 +75,8 @@ export class AuthController {
     @Req() request: Request,
     @Res({ passthrough: true }) response: Response,
   ) {
-    const sessionId = request.signedCookies[this.sessionService.cookieName] as
-      string | null;
+    const sessionId: unknown =
+      request.signedCookies[this.sessionService.cookieName];
 
     if (typeof sessionId === 'string')
       await this.sessionService.destroy(sessionId);
@@ -84,5 +88,15 @@ export class AuthController {
       sameSite: 'lax',
       path: '/',
     });
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('me')
+  @ApiOperation({ summary: '获取当前登录用户信息' })
+  @ApiCookieAuth('session')
+  @ApiOkResponse({ description: '获取用户信息成功!' })
+  @ApiUnauthorizedResponse({ description: '未登录或登录状态失效!' })
+  async me(@Req() request: Request & { user: SessionData }) {
+    return this.authService.me(request.user.userId);
   }
 }

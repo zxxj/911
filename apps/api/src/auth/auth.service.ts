@@ -81,4 +81,19 @@ export class AuthService {
       },
     };
   }
+
+  async me(userId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) throw new UnauthorizedException('用户不存在或已被禁用!');
+    return user;
+  }
 }

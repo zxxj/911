@@ -28,12 +28,10 @@ export class SessionService {
     }
   }
 
-  // 生成key
   private key(sessionId: string): string {
     return `session:${sessionId}`;
   }
 
-  // 从redis中删除key
   async destroy(sessionId: string): Promise<void> {
     await this.redisService.del(this.key(sessionId));
   }
