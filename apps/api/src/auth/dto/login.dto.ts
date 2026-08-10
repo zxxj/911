@@ -3,7 +3,7 @@ import { Transform } from 'class-transformer';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export class LoginDto {
-  @ApiProperty({ example: 'zhangxinxin_2000' })
+  @ApiProperty({ example: 'zhangxinxin' })
   @Transform(({ value }): string =>
     typeof value === 'string' ? value.trim().toLowerCase() : value,
   )
@@ -13,7 +13,7 @@ export class LoginDto {
   username!: string;
 
   @ApiProperty({
-    example: 'a123456789',
+    example: 'Zhangxinxin1.',
     format: 'password',
     minLength: 10,
     maxLength: 128,
