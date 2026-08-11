@@ -7,6 +7,7 @@ import { AppService } from './app.service.js';
 import { RedisModule } from './redis/redis.module.js';
 import { AuthModule } from './auth/auth.module.js';
 import { ArticleModule } from './article/article.module.js';
+import { UploadModule } from './upload/upload.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { ArticleModule } from './article/article.module.js';
     RedisModule,
     AuthModule,
     ArticleModule,
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -14,7 +14,7 @@ export class PublicArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
   @Get()
-  @ApiOperation({ summary: '获取已发布文章列表!' })
+  @ApiOperation({ summary: '获取已发布文章列表' })
   @ApiOkResponse({ description: '获取成功!' })
   list(@Query() dto: PublicListArticleDto) {
     return this.articleService.publicListArticles(dto);
