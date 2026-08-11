@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { PostStatus } from '../../generated/prisma/enums.js';
-import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsEnum, IsInt, IsOptional, Max, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ListArticleDto {
@@ -14,22 +14,24 @@ export class ListArticleDto {
   status?: PostStatus;
 
   @ApiPropertyOptional({
-    description: '上一页最后一篇文章的id',
+    description: '页码',
   })
   @IsOptional()
-  @IsString()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageNumber?: number;
 
   @ApiPropertyOptional({
     default: 10,
     minimum: 1,
     maximum: 100,
-    description: '想要查询的条数',
+    description: '每页数量',
   })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
   @Max(100)
-  limit?: number;
+  pageSize?: number;
 }

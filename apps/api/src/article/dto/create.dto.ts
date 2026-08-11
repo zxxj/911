@@ -9,12 +9,16 @@ import {
   MinLength,
 } from 'class-validator';
 import { Prisma } from '../../generated/prisma/client.js';
+import { Transform } from 'class-transformer';
 
 export class CreateArticleDto {
   @ApiProperty({
     example: '文章标题',
     maxLength: 255,
   })
+  @Transform(({ value }): string =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(255)

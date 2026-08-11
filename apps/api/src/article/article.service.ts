@@ -1,7 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateArticleDto } from './dto/create.dto.js';
 import { ListArticleDto } from './dto/list.dto.js';
+import { UpdateArticleDto } from './dto/update.dto.js';
+import { PostStatus, Prisma } from '../generated/prisma/client.js';
+import { UpdateArticleStatusDto } from './dto/status.dto.js';
+import { PublicListArticleDto } from './dto/public.dto.js';
 
 @Injectable()
 export class ArticleService {
@@ -31,19 +35,175 @@ export class ArticleService {
   }
 
   async list(dto: ListArticleDto) {
-    const take = dto.limit ?? 10;
+    const pageNumber = dto.pageNumber ?? 1;
+    const pageSize = dto.pageSize ?? 10;
+    const skip = (pageNumber - 1) * pageSize;
+    // 过滤草稿.
+    const where =
+      dto.status === PostStatus.PUBLISHED
+        ? { status: PostStatus.PUBLISHED, publishedAt: { not: null } }
+        : dto.status
+          ? { status: dto.status }
+          : undefined;
 
-    if (dto.cursor) {
-      const cursorArticle = await this.prismaService.article.findUnique({
-        where: { id: dto.cursor },
+    const [items, total] = await Promise.all([
+      this.prismaService.article.findMany({
+        where,
+        skip,
+        take: pageSize,
+        orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+        select: {
+          id: true,
+          title: true,
+          excerpt: true,
+          coverImage: true,
+          createdAt: true,
+          updatedAt: true,
+          publishedAt: true,
+          status: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+        },
+      }),
+      this.prismaService.article.count({ where }),
+    ]);
+    return {
+      items,
+      pageNumber,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
+    };
+  }
+
+  async detail(id: string) {
+    const article = await this.prismaService.article.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        title: true,
+        excerpt: true,
+        content: true,
+        coverImage: true,
+        status: true,
+        publishedAt: true,
+        authorId: true,
+        author: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    if (!article) {
+      throw new NotFoundException('文章不存在!');
+    }
+
+    return article;
+  }
+
+  async update(id: string, dto: UpdateArticleDto) {
+    try {
+      return await this.prismaService.article.update({
+        where: { id },
+        data: dto,
+        select: {
+          id: true,
+          title: true,
+          excerpt: true,
+          content: true,
+          coverImage: true,
+          status: true,
+          publishedAt: true,
+          author: {
+            select: {
+              id: true,
+              username: true,
+            },
+          },
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('文章不存在!');
+      }
+
+      throw error;
+    }
+  }
+
+  async updateStatus(id: string, dto: UpdateArticleStatusDto) {
+    try {
+      return await this.prismaService.article.update({
+        where: { id },
+        data: {
+          status: dto.status,
+          publishedAt: dto.status === PostStatus.PUBLISHED ? new Date() : null,
+        },
+        select: {
+          id: true,
+          status: true,
+          publishedAt: true,
+          updatedAt: true,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('文章不存在!');
+      }
+
+      throw error;
+    }
+  }
+
+  async remove(id: string) {
+    try {
+      return await this.prismaService.article.delete({
+        where: { id },
         select: { id: true },
       });
-
-      const pagination = { cursor: dto.cursor, skip: 1 };
-
-      if (!cursorArticle) {
-        throw new BadRequestException('无效的分页游标!');
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('文章不存在!');
       }
+
+      throw error;
     }
+  }
+
+  publicListArticles(dto: PublicListArticleDto) {
+    return this.list({ ...dto, status: PostStatus.PUBLISHED });
+  }
+
+  async publicArticleDetail(id: string) {
+    const article = await this.detail(id);
+
+    if (
+      article.status !== PostStatus.PUBLISHED ||
+      article.publishedAt === null
+    ) {
+      throw new NotFoundException('文章不存在!');
+    }
+
+    return article;
   }
 }
