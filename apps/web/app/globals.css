@@ -1,3 +1,6 @@
+@import '../styles/_variables.scss';
+@import '../styles/_keyframe-animations.scss';
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -127,4 +130,95 @@
   html {
     @apply font-sans;
   }
+}
+
+.article-content {
+  line-height: 1.8;
+}
+
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  margin: 2rem 0 1rem;
+  font-weight: 700;
+}
+
+.article-content h1 { font-size: 2rem; }
+.article-content h2 { font-size: 1.5rem; }
+.article-content h3 { font-size: 1.25rem; }
+
+.article-content p,
+.article-content ul,
+.article-content ol,
+.article-content blockquote,
+.article-content pre {
+  margin: 1rem 0;
+}
+
+.article-content ul,
+.article-content ol { padding-left: 1.5rem; }
+.article-content ul { list-style: disc; }
+.article-content ol { list-style: decimal; }
+
+.article-content blockquote {
+  border-left: 3px solid currentColor;
+  padding-left: 1rem;
+  opacity: 0.75;
+}
+
+.article-content :not(pre) > code {
+  border: 1px solid #4b5263;
+  border-radius: 0.375rem;
+  background: #3e4451;
+  padding: 0.1em 0.2em;
+  color: #e5c07b;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.875em;
+  line-height: 1.4;
+}
+
+.article-content pre {
+  overflow-x: auto;
+  border: 1px solid #3e4451;
+  border-radius: 0.375rem;
+  background: #282c34;
+  padding: 1rem;
+  color: #abb2bf;
+  font-size: 1rem;
+}
+
+.article-content pre code {
+  display: block;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font-family: var(--font-geist-mono), monospace;
+}
+
+.article-content pre .hljs-comment,
+.article-content pre .hljs-quote { color: #5c6370; font-style: italic; }
+.article-content pre .hljs-keyword,
+.article-content pre .hljs-selector-tag,
+.article-content pre .hljs-meta { color: #c678dd; }
+.article-content pre .hljs-string,
+.article-content pre .hljs-regexp,
+.article-content pre .hljs-addition { color: #98c379; }
+.article-content pre .hljs-title,
+.article-content pre .hljs-function,
+.article-content pre .hljs-attr,
+.article-content pre .hljs-attribute { color: #61afef; }
+.article-content pre .hljs-number,
+.article-content pre .hljs-literal,
+.article-content pre .hljs-built_in,
+.article-content pre .hljs-type,
+.article-content pre .hljs-symbol { color: #d19a66; }
+.article-content pre .hljs-variable,
+.article-content pre .hljs-template-variable,
+.article-content pre .hljs-deletion { color: #e06c75; }
+
+.article-content .article-image {
+  margin: 2rem 0;
+  max-width: 100%;
+  border-radius: var(--radius-md);
 }

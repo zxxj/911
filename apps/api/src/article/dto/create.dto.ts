@@ -36,8 +36,8 @@ export class CreateArticleDto {
   @ApiProperty({
     example: [
       {
-        type: 'p',
-        children: [{ text: '这是plate编辑器的正文' }],
+        type: 'paragraph',
+        content: [{ type: 'text', text: '这是 Tiptap 编辑器的正文' }],
       },
     ],
   })
